@@ -7,9 +7,10 @@ app.use(cors());
 app.use(express.json());
 const routes = require('./routes/record');
 const auth = require('./routes/auth');
+const order = require('./routes/order');
 app.use('/api', routes)
 app.use('/api', auth)
-
+app.use('/api', order)
 // get driver connection
 const dbo = require("./db/conn");
  

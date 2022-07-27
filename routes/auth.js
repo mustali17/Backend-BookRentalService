@@ -44,12 +44,7 @@ authRoutes.post("/user/signup",function (req, response) {
             }
         }));
     });
-
-
-
-
-    
-   });
+});
 
 authRoutes.post("/user/signin",function(req,response){
     let db_connect = dbo.getDb();
@@ -78,6 +73,40 @@ authRoutes.post("/user/signin",function(req,response){
 
 }); 
 
+authRoutes.get("/user/:id",requireLogin,function (req, res) {
+    let db_connect = dbo.getDb();
+    let myquery = { _id: ObjectId( req.params.id )};
+    db_connect
+        .collection("newUser")
+        .findOne(myquery, function (err, result) {
+          if (err) throw err;
+          res.json(result);
+        });
+   });
 
+   authRoutes.route("/user/update/:id").post(function (req, response) {
+    let db_connect = dbo.getDb(); 
+    let {name,username,email,password,phone,addr1,addr2,pin,state,country}= req.body;
+    let myquery = { _id: ObjectId( req.params.id )}; 
+    let newvalues = {   
+      $set: {     
+        name,
+        username,
+        email,
+        password,
+        phone,
+        addr1,
+        addr2,
+        pin,
+        state,
+        country,
+      }, 
+     }
+     db_connect.collection("newUser").updateOne(myquery,newvalues,function(err,res){
+        if(err) throw err;
+        response.json(res);
+
+     })
+   });
 
    module.exports = authRoutes;

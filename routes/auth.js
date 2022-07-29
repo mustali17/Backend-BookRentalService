@@ -84,8 +84,8 @@ authRoutes.get("/user/:id",requireLogin,function (req, res) {
         });
    });
 
-   authRoutes.route("/user/update/:id").post(function (req, response) {
-    let db_connect = dbo.getDb(); 
+   authRoutes.post("/user/update/:id",function (req, response) {
+        let db_connect = dbo.getDb(); 
     let {name,username,email,password,phone,addr1,addr2,pin,state,country}= req.body;
     let myquery = { _id: ObjectId( req.params.id )}; 
     let newvalues = {   

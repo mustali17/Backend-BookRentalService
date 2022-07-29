@@ -81,15 +81,15 @@ recordRoutes.route("/:id").delete((req, response) => {
  });
 });
 
-recordRoutes.get("/order/:id",requireLogin,function (req, res) {
-  let db_connect = dbo.getDb();
-  let myquery = { _id: ObjectId( req.params.id )};
-  db_connect
-      .collection("records")
-      .findOne(myquery, function (err, result) {
-        if (err) throw err;
-        res.json(result);
-      });
- });
+// recordRoutes.get("/ordercart/:id",requireLogin,function (req, res) {
+//   let db_connect = dbo.getDb();
+//   let myquery = { _id: ObjectId( req.params.id )};
+//   db_connect
+//       .collection("records")
+//       .findOne(myquery, function (err, result) {
+//         if (err) throw err;
+//         res.json(result);
+//       });
+//  });
  
 module.exports = recordRoutes;

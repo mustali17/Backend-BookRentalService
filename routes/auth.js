@@ -13,7 +13,7 @@ const bcrypt = require("bcryptjs");
 
 authRoutes.post("/user/signup",function (req, response) {
     let db_connect = dbo.getDb();
-    const {name,username,email,password}=req.body
+    const {name,lname,username,email,password}=req.body
    
     if(!name || !username || !email || !password){
        return response.status(422).json({error:"You will need to give all information"});    
@@ -22,6 +22,7 @@ authRoutes.post("/user/signup",function (req, response) {
     bcrypt.hash(password,12).then(hashedpasswoed=>{
         let myobj = {
             name,
+            lname,
             username,
             email,
             password:hashedpasswoed,

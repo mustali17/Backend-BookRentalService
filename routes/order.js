@@ -5,7 +5,11 @@ const orderRoutes = express.Router();
 const requireLogin = require("../middleware/requireLogin");
 const dbo = require("../db/conn");
 const ObjectId = require("mongodb").ObjectId;
-
+let date_ob=new Date();
+let date=("0"+date_ob.getDate()).slice(-2);
+let month=("0"+(date_ob.getMonth()+1)).slice(-2);
+let year=date_ob.getFullYear();
+var FDate=date+"/"+month+"/"+year;
 
 orderRoutes.post("/order",function (req, response) {
     let db_connect = dbo.getDb();
@@ -31,6 +35,7 @@ orderRoutes.post("/order",function (req, response) {
             bookname,
             imgurl,
             price,
+            FDate,
           };
            db_connect.collection("newOrder").insertOne(myobj, function (err, res) {
                     if (err) throw err;

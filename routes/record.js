@@ -49,6 +49,9 @@ recordRoutes.post("/record/add",requireLogin,function (req, response) {
    imgurl: req.body.imgurl,
    ownermail: req.body.ownermail,
  };
+ if(!myobj.bookname || !myobj.authorname || !myobj.desc || !myobj.price || !myobj.imgurl || !myobj.ownermail){
+  return response.status(422).json({error:"You will need to give all information"});    
+}
  db_connect.collection("records").insertOne(myobj, function (err, res) {
    if (err) throw err;
    response.json(res);

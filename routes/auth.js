@@ -109,5 +109,15 @@ authRoutes.get("/user/:id",requireLogin,function (req, res) {
 
      })
    });
+   authRoutes.get('/admin',function (req, res) {
+    let db_connect = dbo.getDb("newBooks");
+    db_connect
+      .collection("auth")
+      .find({})
+      .toArray(function (err, result) {
+        if (err) throw err;
+        res.json(result);
+      });
+   });
 
    module.exports = authRoutes;

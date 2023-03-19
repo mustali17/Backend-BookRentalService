@@ -10,13 +10,13 @@ const ObjectId = require("mongodb").ObjectId;
 
 const bcrypt = require("bcryptjs");
 
-const admin = require("firebase-admin");
-const serviceAccount = require("../rentnread-e352c-firebase-adminsdk-48dky-fced963fce.json");
+// const admin = require("firebase-admin");
+// const serviceAccount = require("../rentnread-e352c-firebase-adminsdk-48dky-fced963fce.json");
 
-// initialize the Firebase app
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+// // initialize the Firebase app
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+// });
 
 authRoutes.post("/user/signup", function (req, response) {
   let db_connect = dbo.getDb();

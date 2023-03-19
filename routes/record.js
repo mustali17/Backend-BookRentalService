@@ -36,33 +36,50 @@ recordRoutes.route("/record/:id").get(function (req, res) {
   });
 });
 
-recordRoutes.post("/record/add", requireLogin, function (req, response) {
-  let db_connect = dbo.getDb();
-  let myobj = {
-    bookname: req.body.bookname,
-    authorname: req.body.authorname,
-    desc: req.body.desc,
-    price: req.body.price,
-    imgurl: req.body.imgurl,
-    ownermail: req.body.ownermail,
-  };
-  if (
-    !myobj.bookname ||
-    !myobj.authorname ||
-    !myobj.desc ||
-    !myobj.price ||
-    !myobj.imgurl ||
-    !myobj.ownermail
-  ) {
-    return response
-      .status(422)
-      .json({ error: "You will need to give all information" });
-  }
-  db_connect.collection("records").insertOne(myobj, function (err, res) {
-    if (err) throw err;
-    response.json(res);
-  });
+const multer = require("multer");
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "../BookRentalService/src/components/books");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
 });
+
+const upload = multer({ storage: storage });
+
+recordRoutes.post(
+  "/record/add",
+  requireLogin,
+  upload.single("image"),
+  function (req, response) {
+    let db_connect = dbo.getDb();
+    let myobj = {
+      bookname: req.body.bookname,
+      authorname: req.body.authorname,
+      desc: req.body.desc,
+      price: req.body.price,
+      imgurl: req.file.filename, // Use the filename of the uploaded image
+      ownermail: req.body.ownermail,
+    };
+    if (
+      !myobj.bookname ||
+      !myobj.authorname ||
+      !myobj.desc ||
+      !myobj.price ||
+      !myobj.imgurl ||
+      !myobj.ownermail
+    ) {
+      return response
+        .status(422)
+        .json({ error: "You will need to give all information" });
+    }
+    db_connect.collection("records").insertOne(myobj, function (err, res) {
+      if (err) throw err;
+      response.json(res);
+    });
+  }
+);
 
 recordRoutes.route("/update/:id").post(function (req, response) {
   let db_connect = dbo.getDb();

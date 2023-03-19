@@ -29,9 +29,9 @@ authRoutes.post("/user/signup", function (req, response) {
       .findOne({ email })
       .then((existingUser) => {
         if (existingUser) {
-          return response
-            .status(422)
-            .json({ error: "User already exists with this email" });
+          return response.json({
+            error: "User already exists with this email",
+          });
         } else {
           // if user does not exist in database, add user to database
           // bcrypt.hash(password, 12).then((hashedpasswoed) => {

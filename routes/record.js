@@ -19,7 +19,7 @@ recordRoutes.get("/record", function (req, res) {
   let db_connect = dbo.getDb("newBooks");
   db_connect
     .collection("records")
-    .find({})
+    .find({ onRent: false })
     .toArray(function (err, result) {
       if (err) throw err;
       res.json(result);
@@ -36,18 +36,73 @@ recordRoutes.route("/record/:id").get(function (req, res) {
   });
 });
 
-const multer = require("multer");
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "../BookRentalService/src/components/books");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
+recordRoutes.patch("/onrent/:bookID", async (req, res) => {
+  try {
+    const { bookID } = req.params;
+    let db_connect = dbo.getDb();
+    const record = await db_connect.collection("records").findOneAndUpdate(
+      { _id: ObjectId(bookID) },
+      { $set: { onRent: true } },
+      { returnOriginal: false } // Return the updated record
+    );
+
+    res.json(record);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
-const upload = multer({ storage: storage });
-
+const multer = require("multer");
+const { google } = require("googleapis");
+const path = require("path");
+const drive = google.drive({
+  version: "v3",
+  auth: new google.auth.OAuth2(
+    "981631801421-rmos0icjmseinlpn60njbni5knar5kcb.apps.googleusercontent.com",
+    "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",
+    "http://localhost:3000/auth/google/callback"
+  ),
+});
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "../BookRentalService/src/components/books");
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + "-" + file.originalname);
+//   },
+// });
+const stream = require("stream");
+// const upload = multer({ storage: storage });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB limit
+  },
+});
+recordRoutes.post("/upload", upload.single("file"), async (req, res) => {
+  try {
+    // create a file in Google Drive
+    const response = await drive.files.create({
+      requestBody: {
+        name: req.file.originalname,
+        mimeType: req.file.mimetype,
+      },
+      media: {
+        mimeType: req.file.mimetype,
+        body: req.file.buffer,
+        // use a transform to convert the buffer to a readable stream
+        body: req.file.buffer
+          ? new stream.PassThrough().end(req.file.buffer)
+          : null,
+      },
+    });
+    res.send("File uploaded successfully!");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Something went wrong!");
+  }
+});
 recordRoutes.post(
   "/record/add",
   requireLogin,
@@ -61,13 +116,13 @@ recordRoutes.post(
       price: req.body.price,
       imgurl: req.file.filename, // Use the filename of the uploaded image
       ownermail: req.body.ownermail,
+      onRent: false,
     };
     if (
       !myobj.bookname ||
       !myobj.authorname ||
       !myobj.desc ||
       !myobj.price ||
-      !myobj.imgurl ||
       !myobj.ownermail
     ) {
       return response

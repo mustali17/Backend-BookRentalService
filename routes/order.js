@@ -111,7 +111,7 @@ orderRoutes.get("/order/:id", requireLogin, function (req, res) {
 });
 
 orderRoutes.get("/order", function (req, res) {
-  let db_connect = dbo.getDb("newBooks");
+  let db_connect = dbo.getDb();
   db_connect
     .collection("newOrder")
     .find({})

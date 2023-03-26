@@ -189,7 +189,7 @@ authRoutes.post("/user/update/:id", function (req, response) {
     });
 });
 authRoutes.get("/admin", function (req, res) {
-  let db_connect = dbo.getDb("newBooks");
+  let db_connect = dbo.getDb();
   db_connect
     .collection("auth")
     .find({})

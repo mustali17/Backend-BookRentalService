@@ -8,9 +8,13 @@ app.use(express.json());
 const routes = require("./routes/record");
 const auth = require("./routes/auth");
 const order = require("./routes/order");
+const review = require("./routes/review");
+
 app.use("/api", routes);
 app.use("/api", auth);
 app.use("/api", order);
+app.use("/api", review);
+
 // get driver connection
 const dbo = require("./db/conn");
 

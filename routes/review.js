@@ -41,7 +41,7 @@ reviewRoutes.get("/review/:id", function (req, res) {
       // Convert user IDs to ObjectId type
       const userIdsAsObjectIds = userIds.map((userId) => ObjectId(userId));
 
-      // Query the newUser collection to get the user names
+      // Query the newUser collection to get the user name
       db_connect
         .collection("newUser")
         .find({ _id: { $in: userIdsAsObjectIds } })

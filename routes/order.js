@@ -11,7 +11,7 @@ let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
 let year = date_ob.getFullYear();
 var FDate = date + "/" + month + "/" + year;
 
-orderRoutes.post("/order", requireLogin, function (req, response) {
+orderRoutes.post("/order", function (req, response) {
   let db_connect = dbo.getDb();
   const {
     name,

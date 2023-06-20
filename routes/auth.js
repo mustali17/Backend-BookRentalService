@@ -9,6 +9,7 @@ const dbo = require("../db/conn");
 const ObjectId = require("mongodb").ObjectId;
 
 const bcrypt = require("bcryptjs");
+const authControllers = require("../controllers/authControllers");
 
 // const admin = require("firebase-admin");
 // const serviceAccount = require("../rentnread-e352c-firebase-adminsdk-48dky-fced963fce.json");
@@ -42,6 +43,7 @@ authRoutes.post("/user/signup", function (req, response) {
             email,
             password,
             provider,
+            blocked: false,
           };
 
           db_connect
@@ -87,6 +89,7 @@ authRoutes.post("/user/signup", function (req, response) {
               email,
               password: hashedpasswoed,
               provider,
+              blocked: false,
             };
 
             db_connect
@@ -117,6 +120,9 @@ authRoutes.post("/user/signin", function (req, response) {
     .then((savedUser) => {
       if (!savedUser) {
         return response.status(422).json({ error: "User does not exist!" });
+      }
+      if (savedUser.blocked) {
+        return response.status(422).json({ error: "User is blocked!" });
       }
       bcrypt
         .compare(password, savedUser.password)
@@ -188,16 +194,7 @@ authRoutes.post("/user/update/:id", function (req, response) {
       response.json(res);
     });
 });
-authRoutes.get("/admin", function (req, res) {
-  let db_connect = dbo.getDb();
-  db_connect
-    .collection("auth")
-    .find({})
-    .toArray(function (err, result) {
-      if (err) throw err;
-      res.json(result);
-    });
-});
+authRoutes.get("/admin", authControllers.admin);
 
 authRoutes.post("/user/addusername/:email", function (req, response) {
   let db_connect = dbo.getDb();
@@ -219,4 +216,65 @@ authRoutes.post("/user/addusername/:email", function (req, response) {
   });
 });
 
+authRoutes.get("/getusers", function (req, res) {
+  let db_connect = dbo.getDb("newUser");
+  db_connect
+    .collection("newUser")
+    .find({}, { projection: { password: 0 } })
+    .toArray(function (err, result) {
+      if (err) throw err;
+      res.json(result);
+    });
+});
+
+authRoutes.put("/:id", async (req, res) => {
+  const id = req.params.id;
+  let db_connect = dbo.getDb();
+  const updatedUser = req.body;
+
+  try {
+    const result = await db_connect
+      .collection("newUser")
+      .updateOne({ _id: ObjectId(id) }, { $set: updatedUser });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update user." });
+  }
+});
+
+authRoutes.route("/delete/:id").delete((req, response) => {
+  const db_connect = dbo.getDb();
+  const userId = ObjectId(req.params.id);
+
+  db_connect.collection("newUser").findOne({ _id: userId }, (err, user) => {
+    if (err) {
+      console.error(err);
+      response.status(500).send("Internal Server Error");
+      return;
+    }
+
+    if (!user) {
+      response.status(404).send("User not found");
+      return;
+    }
+
+    const userQuery = { _id: userId };
+    db_connect.collection("newUser").deleteOne(userQuery, (err, result) => {
+      if (err) {
+        console.error(err);
+        response.status(500).send("Internal Server Error");
+        return;
+      }
+
+      if (result.deletedCount === 0) {
+        response.status(404).send("User not found");
+        return;
+      }
+
+      console.log("User document deleted:", userId);
+    });
+  });
+});
 module.exports = authRoutes;

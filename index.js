@@ -9,11 +9,13 @@ const routes = require("./routes/record");
 const auth = require("./routes/auth");
 const order = require("./routes/order");
 const review = require("./routes/review");
+const request = require("./routes/request");
 
 app.use("/api", routes);
 app.use("/api", auth);
 app.use("/api", order);
 app.use("/api", review);
+app.use("/api", request);
 
 // get driver connection
 const dbo = require("./db/conn");

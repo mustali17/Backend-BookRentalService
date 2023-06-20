@@ -114,7 +114,7 @@ recordRoutes.post(
       authorname: req.body.authorname,
       desc: req.body.desc,
       price: req.body.price,
-      imgurl: req.file.filename, // Use the filename of the uploaded image
+      imgurl: req.body.image,
       ownermail: req.body.ownermail,
       onRent: false,
     };

@@ -3,7 +3,7 @@ const app = express();
 const dbo = require("../db/conn");
 require("dotenv").config({ path: "../config.env" });
 const router = express.Router();
-const CLIENT_URL = "https://rentalandread.tech";
+const CLIENT_URL = "https://book-rental-service.vercel.app";
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_KEY);
 const ObjectId = require("mongodb").ObjectId;
